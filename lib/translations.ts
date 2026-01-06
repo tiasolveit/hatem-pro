@@ -84,7 +84,9 @@ const translations = {
             back: "Back",
             continue: "Continue",
             customPackage: "Custom (Contact for quote)",
-            getQuote: "Submit Order",
+            submitOrder: "Submit Order",
+            selectPackage: "Select Package",
+            packageSelection: "Package Selection",
             stats: {
                 materialSaved: "Material Optimization",
                 cncReady: "CNC Compatible",
@@ -343,6 +345,8 @@ const translations = {
             continue: "متابعة",
             customPackage: "مخصص (تواصل لطلب عرض سعر)",
             submitOrder: "إرسال الطلب",
+            selectPackage: "اختر الباقة",
+            packageSelection: "اختيار الباقة",
             stats: {
                 materialSaved: "تقليل استهلاك المواد",
                 cncReady: "جاهز لـ CNC",
