@@ -1,5 +1,5 @@
 "use client"
-import { supabase } from '@/lib/supabase/client'
+import { submitOrder } from '@/app/actions/order'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Send, Upload } from 'lucide-react'
 import { useState } from 'react'
@@ -123,43 +123,34 @@ const OrderForm = ({
     }
 
     const onSubmit = async (data: OrderFormData) => {
-        // Validate materials on step 2
         if (step === 2 && selectedMaterials.length === 0) {
-            setMaterialError(t.materials.requiredError)
-            return
+            setMaterialError(t.materials.requiredError);
+            return;
         }
 
-        setIsSubmitting(true)
-        setError(null)
+        setIsSubmitting(true);
+        setError(null);
 
         try {
-            const { error } = await supabase.from('orders').insert({
-                name: data.name,
-                email: data.email,
-                phone: data.phone,
-                company: data.company,
-                building_type: data.buildingType,
-                timeline: data.timeline,
-                project_description: data.projectDescription,
-                special_requirements: data.specialRequirements,
-                selected_materials: selectedMaterials.join(', '),
-                package: data.package,
-                status: 'pending',
-                language: lang
-            })
+            const orderData = {
+                ...data,
+                selectedMaterials: selectedMaterials.join(', '),
+                lang
+            };
 
-            if (error) throw error
+            const result = await submitOrder(orderData);
 
-            setSubmitSuccess(true)
-            setStep(4)
+            if (result.success) {
+                setSubmitSuccess(true);
+                setStep(4);
+            }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Submission failed')
+            setError(err instanceof Error ? err.message : 'Submission failed');
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
-    }
+    };
 
-    // Handle step navigation
     const handleNextStep = () => {
         if (step === 2 && selectedMaterials.length === 0) {
             setMaterialError(t.materials.requiredError)

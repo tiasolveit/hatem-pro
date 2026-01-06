@@ -1,16 +1,36 @@
 "use client"
 import { useTranslations } from '@/hooks/useTranslations'
+import { supabase } from '@/lib/supabase'
 import { Facebook, Instagram, Linkedin, Mail, MapPin, MessageSquare, Phone } from 'lucide-react'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export default function ContactPage() {
     const t = useTranslations()
+    const [contactData, setContactData] = useState({
+        phone: '+213 123 456 789',
+        email: 'contact@hatempro.com',
+        location: 'Algeria, DZ',
+        linkedin: 'https://linkedin.com/company/hatempro',
+        instagram: 'https://instagram.com/hatempro',
+        facebook: 'https://facebook.com/hatempro',
+        whatsapp: 'https://wa.me/213123456789'
+    })
+
+    useEffect(() => {
+        fetchContactData()
+    }, [])
+
+    const fetchContactData = async () => {
+        const { data } = await supabase.from('contactus').select('*').single()
+        if (data) setContactData(data)
+    }
 
     const socialLinks = [
-        { icon: Linkedin, label: 'LinkedIn', url: 'https://linkedin.com/company/hatempro', color: 'text-blue-400' },
-        { icon: Instagram, label: 'Instagram', url: 'https://instagram.com/hatempro', color: 'text-pink-400' },
-        { icon: Facebook, label: 'Facebook', url: 'https://facebook.com/hatempro', color: 'text-blue-500' },
-        { icon: MessageSquare, label: 'WhatsApp', url: 'https://wa.me/213123456789', color: 'text-green-400' },
+        { icon: Linkedin, label: 'LinkedIn', url: contactData.linkedin, color: 'text-blue-400' },
+        { icon: Instagram, label: 'Instagram', url: contactData.instagram, color: 'text-pink-400' },
+        { icon: Facebook, label: 'Facebook', url: contactData.facebook, color: 'text-blue-500' },
+        { icon: MessageSquare, label: 'WhatsApp', url: contactData.whatsapp, color: 'text-green-400' },
     ]
 
     return (
@@ -36,7 +56,7 @@ export default function ContactPage() {
                                     </div>
                                     <div>
                                         <h3 className="font-semibold mb-1">{t.contact.info.phone}</h3>
-                                        <p className="text-neutral-400">+213 123 456 789</p>
+                                        <p className="text-neutral-400">{contactData.phone}</p>
                                         <p className="text-sm text-neutral-500">Mon-Fri, 9am-6pm</p>
                                     </div>
                                 </div>
@@ -47,7 +67,7 @@ export default function ContactPage() {
                                     </div>
                                     <div>
                                         <h3 className="font-semibold mb-1">{t.contact.info.email}</h3>
-                                        <p className="text-neutral-400">contact@hatempro.com</p>
+                                        <p className="text-neutral-400">{contactData.email}</p>
                                         <p className="text-sm text-neutral-500">Response within 24h</p>
                                     </div>
                                 </div>
@@ -58,7 +78,7 @@ export default function ContactPage() {
                                     </div>
                                     <div>
                                         <h3 className="font-semibold mb-1">{t.contact.info.location}</h3>
-                                        <p className="text-neutral-400">Algeria, DZ</p>
+                                        <p className="text-neutral-400">{contactData.location}</p>
                                         <p className="text-sm text-neutral-500">Remote services available worldwide</p>
                                     </div>
                                 </div>
@@ -95,7 +115,7 @@ export default function ContactPage() {
                                     For fastest response, message us on WhatsApp or call during business hours.
                                 </p>
                                 <Link
-                                    href="https://wa.me/213123456789"
+                                    href={contactData.whatsapp}
                                     target="_blank"
                                     className="inline-flex items-center text-green-400 hover:text-green-300"
                                 >

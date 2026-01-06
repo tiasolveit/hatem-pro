@@ -1,69 +1,24 @@
 "use client"
-import { Box, Expand, Ruler, Scissors } from 'lucide-react'
-import Link from 'next/link'
-import { useParams } from 'next/navigation'
-
-const projects = [
-    {
-        id: 1,
-        title: 'Luxury Retail Facade',
-        category: 'Retail',
-        material: 'Aluminum Composite',
-        area: '85 m²',
-        wasteReduced: '22%',
-        imageColor: 'bg-linear-to-br from-blue-900/30 to-cyan-900/30',
-    },
-    {
-        id: 2,
-        title: 'Corporate Office Entrance',
-        category: 'Office',
-        material: 'Stainless Steel',
-        area: '120 m²',
-        wasteReduced: '18%',
-        imageColor: 'bg-linear-to-br from-neutral-900/30 to-blue-900/30',
-    },
-    {
-        id: 3,
-        title: 'Boutique Hotel Front',
-        category: 'Hospitality',
-        material: 'Perforated Metal',
-        area: '65 m²',
-        wasteReduced: '30%',
-        imageColor: 'bg-linear-to-br from-cyan-900/30 to-blue-900/30',
-    },
-    {
-        id: 4,
-        title: 'Modern Apartment Building',
-        category: 'Residential',
-        material: 'Glass & Aluminum',
-        area: '200 m²',
-        wasteReduced: '15%',
-        imageColor: 'bg-linear-to-br from-violet-900/30 to-blue-900/30',
-    },
-    {
-        id: 5,
-        title: 'Shopping Mall Entrance',
-        category: 'Retail',
-        material: 'Curved Steel',
-        area: '150 m²',
-        wasteReduced: '25%',
-        imageColor: 'bg-linear-to-br from-emerald-900/30 to-cyan-900/30',
-    },
-    {
-        id: 6,
-        title: 'Tech Company HQ',
-        category: 'Office',
-        material: 'Corten Steel',
-        area: '180 m²',
-        wasteReduced: '20%',
-        imageColor: 'bg-linear-to-br from-orange-900/30 to-rose-900/30',
-    },
-]
+import { Box, Expand, Ruler, Scissors, X } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+type Project = {
+    id: string;
+    title: string;
+    category: string;
+    material: string;
+    area: string;
+    wasteReduced: string;
+    thumbnail_url?: string;
+    video_url?: string;
+};
 
 const PortfolioGrid = ({
     t,
+    projects,
     selectedCategory = 'All',
-    selectedMaterial = null
+    selectedMaterial = null,
+    lang
 }: {
     t: {
         viewDetails: string
@@ -74,11 +29,12 @@ const PortfolioGrid = ({
             cncReady: string
         }
     }
-    selectedCategory?: string
-    selectedMaterial?: string | null
+    projects: Project[];
+    selectedCategory?: string;
+    selectedMaterial?: string | null;
+    lang: string;
 }) => {
-    const params = useParams()
-    const lang = params.lang as string
+    const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
     // Filter projects
     const filteredProjects = projects.filter(project => {
@@ -89,6 +45,31 @@ const PortfolioGrid = ({
 
     return (
         <div>
+            {/* Video Modal */}
+            {selectedVideo && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+                    <div className="bg-gray-900 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                        <div className="flex justify-between items-center p-4 border-b border-gray-800">
+                            <h3 className="text-xl font-semibold">Video Walkthrough</h3>
+                            <button
+                                onClick={() => setSelectedVideo(null)}
+                                className="p-2 hover:bg-gray-800 rounded"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        <div className="p-4">
+                            <video
+                                src={selectedVideo}
+                                controls
+                                autoPlay
+                                className="w-full h-auto max-h-[70vh] rounded"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Results count */}
             <div className="mb-6 text-neutral-400">
                 Showing {filteredProjects.length} of {projects.length} projects
@@ -101,12 +82,20 @@ const PortfolioGrid = ({
                         key={project.id}
                         className="group border border-neutral-800 rounded-2xl overflow-hidden bg-neutral-900/30 hover:bg-neutral-900/50 transition-all duration-300 hover:scale-[1.02]"
                     >
-                        {/* Image/Preview */}
-                        <div className={`h-48 ${project.imageColor} relative overflow-hidden`}>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="h-32 w-32 border-2 border-white/20 rounded-lg rotate-45"></div>
-                                <div className="absolute h-32 w-32 border-2 border-white/10 rounded-lg -rotate-45"></div>
-                            </div>
+                        {/* Thumbnail */}
+                        <div className="h-48 relative overflow-hidden bg-gray-900">
+                            {project.thumbnail_url ? (
+                                <img
+                                    src={project.thumbnail_url}
+                                    alt={project.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                />
+                            ) : (
+                                <div className="h-full bg-linear-to-br from-gray-900/30 to-gray-800/30 flex items-center justify-center">
+                                    <div className="h-32 w-32 border-2 border-white/20 rounded-lg rotate-45"></div>
+                                    <div className="absolute h-32 w-32 border-2 border-white/10 rounded-lg -rotate-45"></div>
+                                </div>
+                            )}
                             <button className="absolute top-4 right-4 p-2 rounded-full bg-black/50 hover:bg-black/80">
                                 <Expand className="h-5 w-5" />
                             </button>
@@ -153,8 +142,12 @@ const PortfolioGrid = ({
                                 >
                                     {t.viewDetails}
                                 </Link>
-                                <button className="px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 transition-colors">
-                                    {t.view3D}
+                                <button
+                                    onClick={() => project.video_url && setSelectedVideo(project.video_url)}
+                                    disabled={!project.video_url}
+                                    className="px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    ▶ Play Video
                                 </button>
                             </div>
                         </div>
@@ -179,3 +172,5 @@ const PortfolioGrid = ({
 }
 
 export default PortfolioGrid
+
+
